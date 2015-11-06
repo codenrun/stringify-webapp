@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html  ng-app="MusicStation" >
+<head>
+
+<style>
+	.song-focused{
+		background-color: #001f3f;
+		border: 0.8em solid #39CCCC;
+	} 
+	
+	.song-normal{
+		background-color: grey;
+		border: 0.8em solid #DDDDDD;
+	} 
+	
+	.cat-focused{
+		background-color: maroon;
+	} 
+	
+	.cat-normal{
+		background-color: #FF7A5A;
+	} 
+	.playlist-song-focused{
+		background-color: #001f3f;
+		border: 0.2em solid #DDDDDD;
+	} 
+	
+	.playlist-song-normal{
+		background-color: grey;
+		border: 0.2em solid #DDDDDD;		
+	} 
+	
+	.playlist-song-hover{
+		background-color: grey;
+		border: 0.2em solid #39CCCC;		
+	} 
+	
+	.song-playlist-x-hide{
+		display:none;	
+	}
+	
+	
+	.song-playlist-x-visible{
+		display:auto;	
+	}
+	
+	
+	.tag-selected{
+		background-color: maroon;
+	} 
+	
+	.tag-normal{
+		background-color: #001f3f;
+	} 
+	
+	.tag-small{
+		padding:1px; 
+		font-size:.8vw; 
+	} 
+	
+	.tag-mid{
+		padding:4px 2px 4px 2px; 
+		font-size:1vw; 
+	} 
+	
+	.tag-big{
+		padding:8px 4px 4px 8px; 
+		font-size:1.2vw; 
+	} 
+	
+	.tag-mega{
+		padding:12px 6px 6px 12px; 
+		font-size:1.4vw; 
+	} 
+</style>
+
+
+</head>
+<body bgcolor="#FF7A5A"  >
+	<script src="scripts/three.min.js"></script>   
+	<script src="scripts/AnaglyphEffect.js"></script>   
+	<script src="scripts/Detector.js"></script> 
+	<script src="scripts/main.js"></script>	
+	<script type="text/javascript" src="scripts/jquery.min.js">
+	</script><script type="text/javascript" src="scripts/jquery-ui.min.js">
+	</script><script type="text/javascript"  src="scripts/angular.js"></script>
+	</script><script type="text/javascript"  src="scripts/app.js"></script>
+	
+	
+	
+	
+	
+
+		
+
+	
+	
+	<div    ng-controller= "PlayController as playController"  >
+
+		<div ng-show="viewType==='loading'" >
+		
+			LOADING .... 
+		</div>
+			
+		<div style="position:absolute;left:15%;right:15%" >
+		
+			
+
+			<div  ng-controller= "TabController as tabController" style="height:150px;position:relative;left:0%;" >
+			
+				<div style="position:relative;left:0%;right:0%;top:0%;height:100%;background-color:#39CCCC;; box-sizing:border-box" >
+				
+					<div style="left:15%;right:15% ;background-color:#39CCCC;;; box-sizing:border-box" >
+						&nbsp;
+					</div>
+				
+					<div style="position:relative; height:60px;top:52px;left:10%;width:80%;display: inline-block; *display: inline ;box-sizing: border-box; " >
+					
+						<div  ng-repeat = "tab in tabController.tabs"   
+							style="position:relative;height:100%;;width:32%;left:2%; display: inline-block; *display: inline; box-sizing:border-box"
+							ng-click="tabController.chooseTab(tab)"
+							>
+							
+							<div style=";border-left: .5em solid #39CCCC;;border-right: .5em solid #39CCCC;;;border-top: .5em solid #39CCCC;;; box-sizing:border-box"									
+								ng-class="tabController.selectedTab=== tab? 'cat-focused' : 'cat-normal' "  
+								>
+								<p style="; color:white; font-size:1.5vw; white-space:nowrap;overflow: hidden;text-overflow: ellipsis; text-align: center;font-family: Sans-Serif; box-sizing:border-box;"
+									>
+								{{tab.name}}  
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				
+				<div style="position:absolute;left:0%;right:0%; top:130px; height:20px;background-color:maroon;" >
+				</div>
+			</div>
+				
+  
+ 
+			<div ng-show="viewType==='albums' ">
+			
+				<div style="position:relative;left:0%;right:0%;top:0%;height:100%;background-color:grey;; box-sizing:border-box" >
+
+					<span 
+
+						>
+						<span  
+							ng-repeat="album in playController.albumlist" 
+							ng-class="{     'tag-selected' :playController.selectedAlbum=== album , 
+										'tag-normal' :playController.selectedAlbum !== album , 
+										'tag-mega': album.songs.length > 10 , 
+										'tag-big': album.songs.length > 5  &&  album.songs.length < 10  , 
+										'tag-mid': album.songs.length < 5 &&  album.songs.length > 1  , 
+										'tag-small': album.songs.length == 1   
+							}"  
+							ng-click="playController.selectAlbum(album)"
+							ng-dblclick=" playController.selectAlbum(album);playController.addAlbumSongToPlaylist(album)"    
+
+							style=" border: .3em solid grey; color:white; text-align: center;font-family: Sans-Serif;  display: inline-block; *display: inline; box-sizing: border-box; ;"
+							>
+							 {{album.name}} {{ (album.songs.length > 1 ? "(" + album.songs.length + ")" : "") }}
+						</span>
+						
+					</span>
+					
+					<span > &nbsp </span>
+				</div>	
+			</div>
+			
+			
+			<div ng-show="viewType==='artists' ">
+			
+				<div style="position:relative;left:0%;right:0%;top:0%;height:100%;background-color:grey;; box-sizing:border-box" >
+
+					<span 
+						>
+						<span  
+							ng-repeat="artist in playController.artistlist" 
+							ng-class="{     'tag-selected' :playController.selectedArtist=== artist , 
+										'tag-normal' :playController.selectedArtist !== artist , 
+										'tag-mega': artist.songs.length > 10 , 
+										'tag-big': artist.songs.length > 5  &&  artist.songs.length < 10  , 
+										'tag-mid': artist.songs.length < 5 &&  artist.songs.length > 1  , 
+										'tag-small': artist.songs.length == 1   
+							}"  
+							ng-click="playController.selectArtist(artist)"
+							ng-dblclick=" playController.selectArtist(artist);playController.addArtistSongToPlaylist(artist)"    
+
+							style=" border: .3em solid grey; color:white; text-align: center;font-family: Sans-Serif;  display: inline-block; *display: inline; box-sizing: border-box; ;"
+
+							>
+							{{artist.name}} {{ (artist.songs.length > 1 ? "(" + artist.songs.length + ")" : "") }}
+						</span>
+						
+					</span>
+					
+					<span > &nbsp </span>
+				</div>	
+			</div>
+			
+			
+			
+			<div style="position:relative;left:0%;right:0%;top:0%;height:100%;background-color:grey;; box-sizing:border-box" >
+
+				<div ng-repeat="song in playController.songlist"    
+					ng-Mouseleave="playController.mainlistHoverSong={}" ng-Mouseover="playController.mainlistHoverSong=song"   
+					ng-class="playController.mainlistHoverSong=== song? 'song-focused' : 'song-normal' "  
+					style="height:25%;width:20%;display: inline-block; *display: inline; box-sizing: border-box;"  
+					ng-click="playController.addSongToPlaylist(song)"
+					ng-dblclick="playController.selectedSong=song ; playController.addSongToPlaylist(song)"    
+
+				    >		
+					<img  style="width:100%" ng-src= {{song.thumbpath}}/>
+					
+					<p>
+						<p style="color:white; font-size:1.0vw; white-space:nowrap;overflow: hidden;text-overflow: ellipsis; text-align: center;font-family: Sans-Serif; box-sizing: border-box;">
+							{{song.title}}
+						</p>
+				
+					
+						<p style="color:white; font-size:0.7vw; white-space:nowrap;overflow: hidden;text-overflow: ellipsis; text-align: center;font-family: Sans-Serif; box-sizing: border-box;">
+						 by  <span style="color:orange;"> {{song.artist}} </span>
+						</p>
+						<p style="color:white; font-size:0.7vw; white-space:nowrap;overflow: hidden;text-overflow: ellipsis; text-align: center;font-family: Sans-Serif; box-sizing: border-box;">
+						 <span style="color:yellow;"> {{song.album}}   </span>
+						</p>
+					</p>
+				</div>
+			</div>
+			
+		
+			
+			
+			<div style="left:15%;right:15%;top:88%;height:2%;background-color:grey;" >
+			&nbsp;	
+			<br/>
+			</div>
+			
+			<div style="left:15%;right:15%;top:90%;height:3%;background-color:#39CCCC;" >
+			&nbsp;
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			<br/>
+			</div>
+				
+		</div>
+		
+		
+		<div style="position:fixed;left:15%;right:15%;top:90%;height:10%;background-color:#39CCCC;" >
+			<p  scrollamount="3" style="text-align: center;color:yellow;font-size:1.0vw; font-family: Sans-Serif;;background-color:#39CCCC;width:100%;" >     {{playController.selectedSong.title}}  </p>
+			<audio id="player" controls  autoplay  preload="auto" data-ng-src={{playController.selectedSong.path}}  type="audio/mp3"      style="background-color:#39CCCC;width:100%;">
+			</audio>
+			<img  style="position:fixed;left:17%;top:91%;height:9%;" ng-src= {{playController.selectedSong.thumbpath}}/>
+		</div>
+
+
+		<div style="position:fixed;left:86%;right:2%;top:2%;height:98%;width:12%;background-color:transparent;overflow-y:auto;overflow-x:hidden" >
+		
+			<div  
+				style="position:relative;height:5%;width:100%;display: inline-block; *display: inline;box-sizing: border-box;"  
+			   >
+					<button style="position:absolute;left:0%;top:5%;"  type="button" class="btn btn-info"  ng-click="playController.playAllSongs()"> Play All</button>
+			</div>
+		</div>
+
+	
+		<div ng-show="playController.playlist.length"  style="position:fixed;left:86%;right:2%;top:6%;height:98%;width:12%;background-color:transparent;overflow-y:auto;overflow-x:hidden" >
+		
+			<div  
+				style="position:relative;height:5%;width:100%;display: inline-block; *display: inline;box-sizing: border-box;"  
+			   >
+					<button style="position:absolute;left:0%;top:5%;"  type="button" class="btn btn-info"  ng-click="playController.clearPlaylist()"> Clear All </button>
+			</div>
+		</div>
+
+
+
+
+		<div style="position:fixed;left:86%;right:2%;top:10%;height:98%;width:12%;background-color:transparent;overflow-y:auto;overflow-x:hidden" >
+
+			
+			<div  ng-Mouseleave="song.hover=0" ng-Mouseover="song.hover=1"  ng-repeat="song in playController.playlist"  
+				ng-class="playController.selectedSong=== song ?  'playlist-song-focused' :  (  song.hover===1 ? 'playlist-song-hover': 'playlist-song-normal' )"
+				style="position:relative;height:5%;width:100%;display: inline-block; *display: inline;box-sizing: border-box;"  
+				ng-click="playController.selectedSong=song ; playController.addSongToPlaylist(song)"    
+			   >
+					
+					<button style="position:absolute;left:80%;top:5%" ng-show="song.hover"  type="button" class="btn btn-info"  ng-click="playController.removeSongFromPlaylist(song)"> X</button>
+
+					<img  style="width:15%;height:100%;left:2%; *display: inline;" ng-src= {{song.thumbpath}}/>
+					<span style="width:80%;height:100%;left:20%;top:0%;color:white; white-space:nowrap;overflow: hidden;text-overflow: ellipsis; text-align:left;font-family: Sans-Serif;;display: inline-block; *display: inline;" >
+						{{song.title.substring(0,18)}} 
+					</span>
+			</div>
+		</div>
+		
+		
+		
+
+	</div>
+
+	
+	
+</body>
+</html>
